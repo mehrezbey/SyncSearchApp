@@ -1,24 +1,17 @@
-from elasticsearch import Elasticsearch, NotFoundError  # type: ignore
-from flask import Flask, request, jsonify,Blueprint
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.ext.automap import automap_base
-from elasticsearch.helpers import bulk, BulkIndexError # type: ignore
+from flask import request, jsonify,Blueprint
 import os
-import json
-from sqlalchemy import event
-from sqlalchemy import text
-data_base_name = "nation"
 from search_module.utils.elasticsearch_utils import query_index
+
+
+database_name = os.environ.get("DATABASE_NAME")
 main = Blueprint('main',__name__)
-
-
 
 @main.route('/search')
 def search():
     if(not request.args.get('table')):
         return jsonify(message="Error! Table name is mandatory!"), 405
     if(request.args.get('table') !="_all"):
-        index = data_base_name+"-"+ f"{request.args.get('table')}"
+        index = database_name+"-"+ f"{request.args.get('table')}"
     else: 
         index = f"{request.args.get('table')}"
     query = request.args.get('query', default='')
