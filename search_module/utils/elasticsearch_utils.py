@@ -1,5 +1,4 @@
 from elasticsearch import Elasticsearch, NotFoundError
-from flask import  jsonify
 
 import os
 
@@ -13,10 +12,7 @@ def create_client():
     basic_auth=(username, password),
     request_timeout = 60
     )
-    if es_client.ping():
-        return es_client
-    else:
-        return jsonify(error="Could not connect to Elasticsearch!"), 500
+    return es_client
     
 
 def extract_search_results(response):
@@ -35,10 +31,9 @@ def extract_search_results(response):
     return to_return
 
 def query_index(index, query, fields , page, per_page ):
-    username=os.environ.get('ELASTIC_USERNAME')
-    password = os.environ.get('ELASTIC_PASSWORD')
     es_client = create_client()
-    
+    if not es_client.ping():
+        return {"error":"Could not connect to Elasticsearch!"}
     try:
         result = es_client.search(
             index = index,
@@ -52,31 +47,44 @@ def query_index(index, query, fields , page, per_page ):
                         'size': per_page
                     }
         )
+        return extract_search_results(result), 200
+    
     except NotFoundError:
-        return jsonify(error="Index not found!"), 404
+        return {"error":"Index not found!"}
 
     except Exception as e:
-        return jsonify(error="An unexpected error occurred: " + str(e)), 500
+        return {"error":"An unexpected error occurred: " + str(e)}
 
-    return extract_search_results(result)
 
 def index_doc(index_name, data):
     es_client = create_client()
-    p_key = query_index(database_name+"-"+index_name,"",["primary_key"],1,5)['hits'][0]["primary_key"]
-    resp = es_client.index(index=database_name+"-"+index_name, document=data, id=data[p_key])
-    return resp
+    if not es_client.ping():
+        return {"error":"Could not connect to Elasticsearch!"}
+    try:
+        p_key = query_index(database_name+"-"+index_name,"",["primary_key"],1,5)[0]['hits'][0]["primary_key"]
+        resp = es_client.index(index=database_name+"-"+index_name, document=data, id=data[p_key])
+        return resp
+    except Exception as e:
+        return {"error":"An unexpected error occurred: " + str(e)}
 
 def delete_doc(index_name, data):
     es_client = create_client()
-    p_key = query_index(database_name+"-"+index_name,"",["primary_key"],1,5)['hits'][0]["primary_key"]
-    resp = es_client.delete(index=database_name+"-"+index_name, id=data[p_key])
-    return resp
-
+    if not es_client.ping():
+        return {"error":"Could not connect to Elasticsearch!"}
+    try:
+        p_key = query_index(database_name+"-"+index_name,"",["primary_key"],1,5)[0]['hits'][0]["primary_key"]
+        resp = es_client.delete(index=database_name+"-"+index_name, id=data[p_key])
+        return resp
+    except Exception as e:
+        return {"error":"An unexpected error occurred: " + str(e)}
 
 def update_doc(index_name, data):
     es_client = create_client()
-    p_key = query_index(database_name+"-"+index_name,"",["primary_key"],1,5)['hits'][0]["primary_key"]
-    print("id " , p_key)
-    resp = es_client.update(index=database_name+"-"+index_name, doc = data, id=data[p_key])
-    return resp
-
+    if not es_client.ping():
+        return {"error":"Could not connect to Elasticsearch!"}
+    try:
+        p_key = query_index(database_name+"-"+index_name,"",["primary_key"],1,5)[0]['hits'][0]["primary_key"]
+        resp = es_client.update(index=database_name+"-"+index_name, doc = data, id=data[p_key])
+        return resp
+    except Exception as e:
+        return {"error":"An unexpected error occurred: " + str(e)}

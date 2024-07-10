@@ -1,6 +1,8 @@
 from flask import request, jsonify,Blueprint
 import os
 from search_module.utils.elasticsearch_utils import query_index
+from search_module import Base,db
+from sqlalchemy.orm import sessionmaker
 
 
 database_name = os.environ.get("DATABASE_NAME")
