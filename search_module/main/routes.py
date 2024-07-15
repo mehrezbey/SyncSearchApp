@@ -6,6 +6,8 @@ from sqlalchemy.orm import sessionmaker
 
 
 database_name = os.environ.get("DATABASE_NAME")
+# database_name = "example"
+
 main = Blueprint('main',__name__)
 
 @main.route('/search')
@@ -25,3 +27,4 @@ def search():
     page = request.args.get('page',default = 1,type = int)
     per_page = request.args.get('per_page',default = 5,type = int)
     return query_index(index,query,fields,page,per_page)
+

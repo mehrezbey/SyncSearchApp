@@ -31,6 +31,11 @@ def extract_search_results(response):
     return to_return
 
 def query_index(index, query, fields , page, per_page ):
+    """
+        index : name of the index ( database_name-table_name) ( _all : to search in all indices)
+        query : the text to search ( empty string will returns all documents )
+        fields : one or multiple fields seperated by a comma , ( if it is empty, We will search in all fields)
+    """
     es_client = create_client()
     if not es_client.ping():
         return {"error":"Could not connect to Elasticsearch!"}
