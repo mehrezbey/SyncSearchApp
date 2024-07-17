@@ -2,15 +2,11 @@ from elasticsearch import Elasticsearch, NotFoundError
 
 import os
 
-database_name = os.environ.get("DATABASE_NAME")
+database_name = os.getenv("DATABASE_NAME")
 
 def create_client():
-    username=os.environ.get('ELASTIC_USERNAME')
-    password = os.environ.get('ELASTIC_PASSWORD')
     es_client = Elasticsearch(
-    ['http://localhost:9200'],
-    basic_auth=(username, password),
-    request_timeout = 60
+        hosts=[{"host": "elasticsearch", "port": 9200,"scheme": "http"}]
     )
     return es_client
     
@@ -55,10 +51,10 @@ def query_index(index, query, fields , page, per_page ):
         return extract_search_results(result), 200
     
     except NotFoundError:
-        return {"error":"Index not found!"}
+        return {"error":"Index not found!"}, 404
 
     except Exception as e:
-        return {"error":"An unexpected error occurred: " + str(e)}
+        return {"error":"An unexpected error occurred: " + str(e)},500
 
 
 def index_doc(index_name, data):

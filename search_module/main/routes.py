@@ -5,8 +5,7 @@ from search_module import Base,db
 from sqlalchemy.orm import sessionmaker
 
 
-database_name = os.environ.get("DATABASE_NAME")
-# database_name = "example"
+database_name = os.getenv("DATABASE_NAME")
 
 main = Blueprint('main',__name__)
 
@@ -28,3 +27,24 @@ def search():
     per_page = request.args.get('per_page',default = 5,type = int)
     return query_index(index,query,fields,page,per_page)
 
+@main.route('/test')
+def test():
+    table = Base.classes.vips
+    Session = sessionmaker(bind=db.engine)
+    session = Session()
+
+    new_row = table(vip_id=7, name='carlos')
+    session.add(new_row)
+
+    new_row = table(vip_id=8, name='rog')
+    session.add(new_row)
+
+    existing_row = session.query(table).filter_by(vip_id=5).first()
+    existing_row.name = 'rafael'
+
+    edel = session.query(table).filter_by(vip_id=7).first()
+    session.delete(edel)
+
+    session.commit()
+    session.close()
+    return"" ,200
