@@ -9,7 +9,7 @@ from . import main_namespace
 
 database_name = os.getenv("DATABASE_NAME")
 
-# main = Blueprint('main',__name__)
+test = Blueprint('test',__name__)
 
 
 #---------------------------- Swagger Models
@@ -56,3 +56,27 @@ class Search(Resource):
             per_page=5
         return query_index(index,query,fields,page,per_page)
 
+
+@test.route('/test')
+def testAPI():
+    Session = sessionmaker(bind=db.engine)
+    session = Session()
+    # Create A class for your table
+    # This is an example if you have a class user 
+    # table = Base.classes.users
+
+    # To add a new user
+    # new_row = table(id=7, name='user')
+    # session.add(new_row)
+
+    # To update a new user
+    # existing_row = session.query(table).filter_by(id=5).first()
+    # existing_row.name = 'new name'
+    
+    #To delete user
+    # to_delete = session.query(table).filter_by(id=8).first()
+    # session.delete(to_delete)
+
+    session.commit()
+    session.close()
+    return"" ,200

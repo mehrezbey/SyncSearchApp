@@ -28,6 +28,6 @@ def create_app(config_class = Config):
     api.add_namespace(main_namespace)
     
     # Import the routes later to prevent circular import ( one of many solutions ) 
-    # from search_module.main.routes import main
-    # app.register_blueprint(main)
+    from search_module.main.routes import test
+    app.register_blueprint(test)
     return app
