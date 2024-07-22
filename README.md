@@ -1,4 +1,4 @@
-# geoprod_search
+# SyncSearchApp
 
 ## Overview
 
